@@ -1,6 +1,4 @@
 from neo4j import GraphDatabase
-import matplotlib.pyplot as plt
-import networkx as nx
 import json
 
 
