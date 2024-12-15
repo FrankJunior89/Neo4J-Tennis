@@ -721,11 +721,11 @@ def analyse_blessures():
 
                         st.dataframe(results_df)
 
-def stats_finales()
+def stats_finales():
      
      st.header("Statistiques des Finales", divider=True)
 
-     
+
 
 
     
