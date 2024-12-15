@@ -720,6 +720,11 @@ def analyse_blessures():
                         results_df =pd.DataFrame(result)
 
                         st.dataframe(results_df)
+
+def stats_finales()
+     
+     st.header("Statistiques des Finales", divider=True)
+
      
 
 

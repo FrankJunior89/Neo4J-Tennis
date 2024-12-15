@@ -1,4 +1,4 @@
-from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures
+from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures,stats_finales
 from Database import Database
 import streamlit as st
 import pandas as pd
@@ -27,6 +27,7 @@ option = st.sidebar.radio(
         "Mes Meilleurs Ennemis",
         "Mon Meilleur Ami",
         "Blessures",
+        "Statistiques des Finales",
         "Nation (Compétitions favorites)",
         "Influence de la Météo sur le Service",
         "Nation & Formation",
@@ -77,6 +78,9 @@ elif option == "Mon Meilleur Ami":
 # Blessures
 elif option == "Blessures":
     analyse_blessures()
+
+elif option == "Statistiques des Finales":
+    stats_finales()
 
 # Nation
 elif option == "Nation (Compétitions favorites)":
