@@ -42,14 +42,21 @@ class Database:
 
         print("Nodes deleted successfully")
 
-    def filter_departments(self,DepartmentName):
+    def list_labels(self):
+        query = "CALL db.labels()"
 
-        query = "MATCH (c:COMMUNES)-[:`SE SITUE DANS`]->(d:DEPARTEMENTS) WHERE d.departement = '" +  DepartmentName + "' RETURN c.nomcom AS commune"
+        with self.driver.session() as session:
+            result = session.run(query)
+        
+            return [record["label"] for record in result]
+
+
+    def execute_query(self,query):
         
         with self.driver.session() as session:
             result = session.run(query)
-            
-            return result.data()
+
+            return [record.data() for record in result]
 
 
 

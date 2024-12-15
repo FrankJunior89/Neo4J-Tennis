@@ -1,74 +1,111 @@
-from Utils import load_credentials , Departements
+from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures
 from Database import Database
 import streamlit as st
 from PIL import Image
 import pandas as pd
 
-
-
+# Load players data
 players = pd.read_csv('data/competitors.csv')
 
-
-
+# Image URL
 image_url = 'logo.png'
 
-#image = Image.open(image_url)
+# Load image if necessary
+# image = Image.open(image_url)
+# st.image(image, width=100)
 
-#st.image(image,width=100)  
-
-
-
-
-st.header("Tennis Perfomance Analysis")
-
-
-
-
-st.header("Perfomance Globale des Joueurs ",divider=True)
-
-st.markdown("#### Vue générale")
-
-st.markdown("#### Requete")
-
-requete = """
-MATCH (p:Player)
-OPTIONAL MATCH (p)-[:WON]->(w:Game)
-OPTIONAL MATCH (p)-[:LOST]->(l:Game)
-WITH p, 
-     COUNT(w) AS wins, 
-     COUNT(l) AS losses, 
-     (COUNT(w) * 1.0) / (COUNT(w) + COUNT(l)) AS winrate
-ORDER BY winrate DESC
-LIMIT 10
-RETURN p.name AS Player, wins, losses, winrate
-
-"""
-
-st.markdown(f"```cypher\n{requete}\n```")
-
-if st.button("Exécuter la requête"):
-    st.text('Execution de la requete...')
-
-st.markdown("#### Vue personnalisée")
-
-option = st.selectbox(
-    "Choix du joueur",
-    players['name'],
+# Sidebar for navigation
+option = st.sidebar.radio(
+    "Requetes : ",
+    [
+        "Général",
+        "Performance Globale des Joueurs",
+        "Performance par Surface de Jeu",
+        "Performance en Tournois Majeurs",
+        "Tennis & Précocité",
+        "Perfomance en fonction de l'age",
+        "Performance en Fonction du Ranking",
+        "Mes Meilleurs Ennemis",
+        "Mon Meilleur Ami",
+        "Blessures",
+        "Nation (Compétitions favorites)",
+        "Influence de la Météo sur le Service",
+        "Nation & Formation",
+        "La Performance et la Raquette",
+        "Classement des Coachs",
+        "Profil Météo",
+        "Men vs Women"
+    ]
 )
 
-st.header("Perfomance par Surface de Jeu ",divider=True)
+# App Header
+if option == "Général":
+    st.header("Notre Graphe")
 
-st.header("Perfomance par Saison ",divider=True)
+# Performance Globale des Joueurs
+elif option == "Performance Globale des Joueurs":
+    perfomance_globale_joueurs()
 
-st.header("Perfomance en tournoi majeurs ",divider=True)
-
-st.header("Perfomance en fonction de l'age ",divider=True)
-
-st.header("Perfomance en fonction du ranking",divider=True)
-
-st.header("Mes meilleurs ennemis",divider=True)
-
-
-
+# Performance par Surface de Jeu
+elif option == "Performance par Surface de Jeu":
+    st.header("Performance par Surface de Jeu", divider=True)
+    # Add relevant content for this section
 
 
+# Performance en Tournois Majeurs
+elif option == "Performance en Tournois Majeurs":
+    perf_tournoi_majeurs()
+
+# Performance en Fonction de l'Age
+elif option == "Tennis & Précocité":
+    perf_by_age()
+
+elif option == "Perfomance en fonction de l'age":
+    evolution_age()
+
+# Performance en Fonction du Ranking
+elif option == "Performance en Fonction du Ranking":
+    perf_by_ranking()
+
+# Mes Meilleurs Ennemis
+elif option == "Mes Meilleurs Ennemis":
+    meilleur_ennemi()
+
+# Mon Meilleur Ami
+elif option == "Mon Meilleur Ami":
+    meilleur_ami()
+
+# Blessures
+elif option == "Blessures":
+    analyse_blessures()
+
+# Nation
+elif option == "Nation (Compétitions favorites)":
+    compet_favoris_par_nation()
+
+# Influence de la Météo sur le Service
+elif option == "Influence de la Météo sur le Service":
+    service_and_meteo()
+
+# Le Court Favori des Nations/Joueurs
+elif option == "Le Court Favori des Nations/Joueurs":
+    st.header("Le Court Favori des Nations/Joueurs", divider=True)
+    # Add relevant content for this section
+
+# La Performance et la Raquette
+elif option == "La Performance et la Raquette":
+    st.header("La Performance et la Raquette", divider=True)
+    # Add relevant content for this section
+
+# Classement des Coachs
+elif option == "Classement des Coachs":
+    classement_coachs()
+
+# Profil Météo
+elif option == "Profil Météo":
+    st.header("Profil Météo", divider=True)
+    # Add relevant content for this section
+
+# Men vs Women
+elif option == "Men vs Women":
+    men_vs_women()

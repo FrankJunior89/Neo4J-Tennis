@@ -5,9 +5,9 @@ import streamlit as st
 
 credentials = load_credentials('.gitignore/credentials.json')
 
-URL = credentials['url']
-USER = credentials['user']
-PASSWORD = credentials['password']
+URL = credentials['NEO4J_URI']
+USER = credentials['NEO4J_USERNAME']
+PASSWORD = credentials['NEO4J_PASSWORD']
 
 
 st.markdown("# Notre projet")
@@ -66,6 +66,10 @@ image_path = "Graphe.png"
 
 # Affichage d'une image locale avec Streamlit
 st.image(image_path, use_column_width=True)
+
+db = Database(URL,USER,PASSWORD)
+
+st.text(db.list_labels())
 
 
 
