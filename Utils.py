@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 from  Database import Database
 import matplotlib.pyplot as plt
-
+import altair as alt
 
 
 def load_credentials(file_path):
@@ -554,7 +554,7 @@ def evolution_age():
                             total_wins, 
                             ROUND((TOFLOAT(total_wins) / total_matches) * 100, 2) AS win_percentage,
                             (year - TOINTEGER(SUBSTRING(toString(dob), 0, 4))) AS age
-                        RETURN toString(year) AS year, 
+                        RETURN year, 
                             age, 
                             total_matches, 
                             total_wins, 
@@ -565,14 +565,35 @@ def evolution_age():
 
             if st.button("Exécuter la requête"):
                 result = db.execute_query(requete)
-
+                
                 players_df =pd.DataFrame(result)
+
+                players_df['year'] = players_df['year'].astype(int)
+
+                # Transformation des données pour Altair
+                data_melted = players_df.melt(id_vars=["year"], 
+                                            value_vars=["total_wins", "total_matches"], 
+                                            var_name="Metric", 
+                                            value_name="Count")
+
+                # Création du graphique Altair
+                chart = alt.Chart(data_melted).mark_bar().encode(
+                    x=alt.X("year:O", title="Year"),  # Axe X : les années
+                    y=alt.Y("Count:Q", title="Count"),  # Axe Y : les valeurs (correctif ici)
+                    color=alt.Color("Metric:N", title="Metric"),  # Couleurs pour différencier les métriques
+                    xOffset="Metric:N"  # Décalage horizontal pour afficher côte à côte
+                ).properties(
+                    width=600,
+                    height=400,
+                    title="Comparison of Wins and Matches"
+                )
+
+                # Affichage dans Streamlit
+                st.altair_chart(chart, use_container_width=True)
 
                 #st.dataframe(players_df)
 
-                #st.text(players_df.dtypes)
-
-                st.line_chart(players_df, x="year", y="total_wins")
+                # st.bar_chart(players_df, x="year", y="total_wins")
 
 def perf_by_ranking():
     st.header("Performance en Fonction du ranking", divider=True)
