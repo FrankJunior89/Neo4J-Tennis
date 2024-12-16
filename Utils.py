@@ -928,6 +928,84 @@ def perf_by_surface():
 
             st.dataframe(players_df)
 
+def nation_formation():
+    st.header("Corrélation nb joueurs/licenciés", divider=True)
+    
+    view_option = st.radio("analysis_blessures vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
+    
+    if view_option == "Vue générale":
+        st.markdown("#### Requête")
+
+        requete = f"""
+MATCH (c:COMPETITOR)-[r:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)
+MATCH (n:NATION)
+WHERE n.country_code2 = c.country_code  // Correspondance explicite entre COMPETITOR et NATION
+WITH c.country AS country, 
+     n.hours_of_sport AS hours_of_sport,
+     COUNT(g) AS total_matches, 
+     SUM(CASE WHEN g.winner_id = c.id THEN 1 ELSE 0 END) AS total_wins, 
+     COUNT(DISTINCT c.id) AS total_players
+WITH country, 
+     hours_of_sport,
+     total_matches AS total_matches_by_country,
+     total_wins AS total_wins_by_country,
+     total_players AS total_players_by_country,
+     ROUND((TOFLOAT(total_wins) / total_matches) * 100, 2) AS win_percentage_by_country
+RETURN country, 
+       hours_of_sport,
+       total_matches_by_country,
+       total_wins_by_country,
+       total_players_by_country,
+       win_percentage_by_country
+ORDER BY win_percentage_by_country DESC
+LIMIT 10            """
+        st.markdown(f"```cypher\n{requete}\n```")
+
+        if st.button("Exécuter la requête"):
+            result = db.execute_query(requete)
+
+            results_df =pd.DataFrame(result)
+
+            st.dataframe(results_df)
+
+    else:
+
+        country_option = st.selectbox("Choix du pays", nations['country'])
+
+        if country_option:  # Vérifie qu'un pays a été sélectionné
+            requete = f"""
+        MATCH (c:COMPETITOR)-[r:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)
+        MATCH (n:NATION)
+        WHERE n.country_code2 = c.country_code
+        AND c.country = '{country_option}'  // Filtre pour le pays sélectionné
+        WITH c.country AS country, 
+            n.hours_of_sport AS hours_of_sport,
+            COUNT(g) AS total_matches, 
+            SUM(CASE WHEN g.winner_id = c.id THEN 1 ELSE 0 END) AS total_wins, 
+            COUNT(DISTINCT c.id) AS total_players
+        WITH country, 
+            hours_of_sport,
+            total_matches AS total_matches_by_country,
+            total_wins AS total_wins_by_country,
+            total_players AS total_players_by_country,
+            ROUND((TOFLOAT(total_wins) / total_matches) * 100, 2) AS win_percentage_by_country
+        RETURN country, 
+            hours_of_sport,
+            total_matches_by_country,
+            total_wins_by_country,
+            total_players_by_country,
+            win_percentage_by_country
+        ORDER BY win_percentage_by_country DESC
+        LIMIT 10
+            """
+            # Affiche la requête dans Streamlit
+            st.markdown(f"```cypher\n{requete}\n```")
+
+            # Bouton pour exécuter la requête
+            if st.button("Exécuter la requête"):
+                result = db.execute_query(requete)  # Exécute la requête dans la base de données
+                results_df = pd.DataFrame(result)  # Convertit le résultat en DataFrame
+                st.dataframe(results_df)          # Affiche le DataFrame dans Streamlit
 
 
 
