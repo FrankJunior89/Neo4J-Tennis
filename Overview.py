@@ -1,4 +1,4 @@
-from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures,stats_finales, nation_formation
+from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures,stats_finales,sponsoring,perf_by_surface,general,nation_formation
 from Database import Database
 import streamlit as st
 import pandas as pd
@@ -31,7 +31,7 @@ option = st.sidebar.radio(
         "Nation (Compétitions favorites)",
         "Influence de la Météo sur le Service",
         "Nation & Formation",
-        "La Performance et la Raquette",
+        "Sponsoring",
         "Classement des Coachs",
         "Profil Météo",
         "Men vs Women"
@@ -41,6 +41,9 @@ option = st.sidebar.radio(
 # App Header
 if option == "Général":
     st.header("Notre Graphe")
+    general()
+
+
 
 # Performance Globale des Joueurs
 elif option == "Performance Globale des Joueurs":
@@ -48,8 +51,7 @@ elif option == "Performance Globale des Joueurs":
 
 # Performance par Surface de Jeu
 elif option == "Performance par Surface de Jeu":
-    st.header("Performance par Surface de Jeu", divider=True)
-    # Add relevant content for this section
+    perf_by_surface()
 
 
 # Performance en Tournois Majeurs
@@ -96,9 +98,8 @@ elif option == "Le Court Favori des Nations/Joueurs":
     # Add relevant content for this section
 
 # La Performance et la Raquette
-elif option == "La Performance et la Raquette":
-    st.header("La Performance et la Raquette", divider=True)
-    # Add relevant content for this section
+elif option == "Sponsoring":
+    sponsoring()
 
 # Classement des Coachs
 elif option == "Classement des Coachs":

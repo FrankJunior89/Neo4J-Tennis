@@ -1,0 +1,102 @@
+{
+    "labels": [
+      {
+        "label": "CATEGORY",
+        "description": "Représente la catégorie d'une compétition, comme 'Grand Slam' ou 'ATP Challenger'. Elle sert à catégoriser les différents types d'événements de tennis.",
+        "attributes": ["category_id", "category_name"],
+        "relationships": []
+      },
+      {
+        "label": "COMPETITION",
+        "description": "Représente une compétition de tennis spécifique, comme l' 'Australian Open' ou 'Wimbledon', incluant son niveau et le type de surface.",
+        "attributes": ["competition_id", "category_id", "category_name", "gender", "level", "name", "parent_id", "type"],
+        "relationships": [
+          {"type": "ORGANIZED_BY", "target": "CATEGORY"},
+          {"type": "IS_A_GAME_OF", "target": "GAME"},
+          {"type": "PARENT", "target": "COMPETITION"}
+        ]
+      },
+      {
+        "label": "GAME",
+        "description": "Représente un match individuel dans une compétition de tennis, incluant les scores, les joueurs et la compétition à laquelle il appartient.",
+        "attributes": ["event_id", "away_score", "category_id", "category_name", "city_name", "competition_gender", "competition_id", "competition_name", "competition_parent_id", "competition_type", "competitor1_bracknumber", "competitor1_country", "competitor1_country_code", "competitor1_id", "competitor1_name", "competitor2_bracknumber", "competitor2_country", "competitor2_country_code", "competitor2_id", "competitor2_name", "country_code", "home_score", "loser_id", "loser_name", "match_status", "season_start_date", "season_end_date", "season_year", "season_id", "season_name", "sport_event_context", "start_time", "start_time_confirmed", "status", "timezone", "venue_id", "venue_name", "winner_id", "winner_name"],
+        "relationships": [
+          {"type": "PLAYED", "target": "COMPETITOR"},
+          {"type": "HAPPENED_IN", "target": "SEASON"},
+          {"type": "HAS_WEATHER", "target": "WEATHER"},
+          {"type": "HELD_IN", "target": "VENUE"},
+          {"type": "IS_A_GAME_OF", "target": "COMPETITION"},
+          {"type": "IS_EDITION_OF", "target": "SEASON"}
+        ]
+      },
+      {
+        "label": "COMPETITOR",
+        "description": "Représente un joueur de tennis ou un compétiteur, avec des détails personnels comme le nom, le classement et le pays.",
+        "attributes": ["competitor_id", "name", "abbreviation", "country", "country_code", "date_of_birth", "gender", "handedness", "height", "weight", "highest_doubles_ranking", "highest_doubles_ranking_date", "highest_singles_ranking", "highest_singles_ranking_date"],
+        "relationships": [
+          {"type": "PLAYED", "target": "GAME"},
+          {"type": "TRAINED_BY", "target": "COACH"},
+          {"type": "IS_FROM", "target": "NATION"},
+          {"type": "MEMBER", "target": "DUO"}
+        ]
+      },
+      {
+        "label": "DUO",
+        "description": "Représente une équipe de deux joueurs dans une compétition de doubles.",
+        "attributes": ["duo_id", "duo_name", "duo_abbreviation", "duo_gender", "player1_id", "player2_id"],
+        "relationships": [
+          {"type": "MEMBER", "target": "COMPETITOR"}
+        ]
+      },
+      {
+        "label": "SEASON",
+        "description": "Représente une saison spécifique dans une compétition de tennis, avec des informations sur les dates de début et de fin, ainsi que l'année de la saison.",
+        "attributes": ["season_id", "name", "competition_id", "start_date", "end_date", "year"],
+        "relationships": [
+          {"type": "IS_EDITION_OF", "target": "COMPETITION"}
+        ]
+      },
+      {
+        "label": "COACH",
+        "description": "Représente un entraîneur de tennis, avec des informations sur le nom du coach et l'état de son rôle.",
+        "attributes": ["Featured Coaches", "player_name", "Status"],
+        "relationships": [
+          {"type": "TRAINED_BY", "target": "COMPETITOR"}
+        ]
+      },
+      {
+        "label": "VENUE",
+        "description": "Représente un lieu où se déroulent les matchs de tennis, comme un stade ou un complexe sportif.",
+        "attributes": ["venue_id", "venue_name"],
+        "relationships": [
+          {"type": "HELD_IN", "target": "GAME"},
+          {"type": "LOCATED_IN", "target": "COMPLEXES"}
+        ]
+      },
+      {
+        "label": "COMPLEXES",
+        "description": "Représente un complexe sportif où des matchs de tennis peuvent avoir lieu, incluant des informations sur la ville, le pays et le fuseau horaire.",
+        "attributes": ["complexes_id", "name", "city_name", "country_name", "timezone", "venue_id", "venue_name"],
+        "relationships": [
+          {"type": "LOCATED_IN", "target": "VENUE"}
+        ]
+      },
+      {
+        "label": "NATION",
+        "description": "Représente un pays, incluant des informations sur sa population, le nombre de joueurs de tennis, et d'autres statistiques sportives.",
+        "attributes": ["country", "country_code", "licensees_2018", "population_2018", "tennis_players_2018", "hours_of_sport"],
+        "relationships": [
+          {"type": "IS_FROM", "target": "COMPETITOR"}
+        ]
+      },
+      {
+        "label": "WEATHER",
+        "description": "Représente les conditions météorologiques à un endroit donné à une date spécifique, avec des détails sur la température, l'humidité, la radiation solaire, etc.",
+        "attributes": ["city", "date_time", "conditions", "humidity", "solarradiation", "temp", "tempmax", "tempmin", "windspeed"],
+        "relationships": [
+          {"type": "HAS_WEATHER", "target": "GAME"}
+        ]
+      }
+    ]
+  }
+  
