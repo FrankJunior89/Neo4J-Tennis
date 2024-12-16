@@ -932,42 +932,82 @@ def nation_formation():
     st.header("Corrélation nb joueurs/licenciés", divider=True)
     
     view_option = st.radio("analysis_blessures vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
-    
+
+    # Sélection de la variable pour l'axe des abscisses
+    x_axis_option = st.selectbox(
+        "Choisir la variable pour l'axe des abscisses",
+        ("heures EPS en primaire", "population en 2018", "licenciés en 2018")
+    )
+
+    column_mapping = {
+            "heures EPS en primaire": "hours_of_sport",
+            "population en 2018": "population",
+            "licenciés en 2018": "licencies"
+        }
+
     if view_option == "Vue générale":
         st.markdown("#### Requête")
+
+        x_axis_column = column_mapping[x_axis_option]
 
         requete = f"""
 MATCH (c:COMPETITOR)-[r:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)
 MATCH (n:NATION)
 WHERE n.country_code2 = c.country_code  // Correspondance explicite entre COMPETITOR et NATION
+AND n.hours_of_sport IS NOT NULL
+AND n.population_2018 IS NOT NULL
+AND n.licensees_2018 IS NOT NULL
 WITH c.country AS country, 
      n.hours_of_sport AS hours_of_sport,
+     n.population_2018 AS population,
+     n.licensees_2018 AS licencies,
      COUNT(g) AS total_matches, 
      SUM(CASE WHEN g.winner_id = c.id THEN 1 ELSE 0 END) AS total_wins, 
      COUNT(DISTINCT c.id) AS total_players
 WITH country, 
      hours_of_sport,
+     population,
+     licencies,
      total_matches AS total_matches_by_country,
      total_wins AS total_wins_by_country,
      total_players AS total_players_by_country,
      ROUND((TOFLOAT(total_wins) / total_matches) * 100, 2) AS win_percentage_by_country
 RETURN country, 
        hours_of_sport,
+       population,
+       licencies,
        total_matches_by_country,
        total_wins_by_country,
        total_players_by_country,
        win_percentage_by_country
 ORDER BY win_percentage_by_country DESC
-LIMIT 10            """
+        """
+        
         st.markdown(f"```cypher\n{requete}\n```")
 
         if st.button("Exécuter la requête"):
             result = db.execute_query(requete)
+            results_df = pd.DataFrame(result)
 
-            results_df =pd.DataFrame(result)
+            # Filtrage des données pour s'assurer que la variable choisie n'est pas nulle
+            # Appliquer le filtrage sur le DataFrame après avoir récupéré les résultats
+            results_df = results_df[results_df[x_axis_column].notnull()]
 
-            st.dataframe(results_df)
+            # Vérifier si le DataFrame après filtrage n'est pas vide
+            if results_df.empty:
+                st.warning(f"Aucun résultat valide pour {x_axis_option}.")
+            else:
+                # Affichage du nuage de points
+                fig, ax = plt.subplots(figsize=(10, 6))
+                ax.scatter(results_df[x_axis_column], results_df['total_players_by_country'], c='blue', label='Pays')
+                ax.set_xlabel(x_axis_option.replace('_', ' ').title())  # Met en forme le titre de l'axe
+                ax.set_ylabel('Nombre de joueurs')
+                ax.set_title(f'Nuage de points: {x_axis_option.replace("_", " ").title()} vs Nombre de joueurs')
+                st.pyplot(fig)
 
+            # Affichage des 10 premiers résultats pour débogage
+            st.dataframe(results_df.head(10)) 
+              
     else:
 
         country_option = st.selectbox("Choix du pays", nations['country'])
