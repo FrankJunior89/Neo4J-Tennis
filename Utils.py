@@ -327,7 +327,7 @@ def service_and_meteo():
                 MATCH (g:GAME), (w:WEATHER)
                 WHERE g.city_name = w.city 
                 AND date(g.start_time) = date(w.datetime)
-                AND w.windspeed > {windspeed_threshold}
+                AND w.windspeed < {windspeed_threshold}
                 AND w.humidity < {humidity_threshold}
                 AND w.solarradiation > {solarradiation_threshold}
                 WITH apoc.convert.fromJsonMap(g.statistics) AS stats
