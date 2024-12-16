@@ -1,4 +1,4 @@
-from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures,stats_finales
+from Utils import load_credentials,perfomance_globale_joueurs,meilleur_ami,classement_coachs,compet_favoris_par_nation,men_vs_women,service_and_meteo,perf_tournoi_majeurs,perf_by_age,evolution_age,perf_by_ranking,meilleur_ennemi,analyse_blessures,stats_finales, nation_formation
 from Database import Database
 import streamlit as st
 import pandas as pd
@@ -112,3 +112,6 @@ elif option == "Profil Météo":
 # Men vs Women
 elif option == "Men vs Women":
     men_vs_women()
+
+elif option == "Nation & Formation":
+    nation_formation()
