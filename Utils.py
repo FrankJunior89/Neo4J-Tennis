@@ -2,6 +2,7 @@ import json
 import streamlit as st
 import pandas as pd
 from  Database import Database
+import matplotlib.pyplot as plt
 
 
 
@@ -26,6 +27,31 @@ players = pd.read_csv('data/competitors.csv')
 coachs = pd.read_csv('data/coachs.csv',sep=";")
 nations = pd.read_csv('data/nations.csv')
 
+
+def general():
+
+
+    with open('data/general.json', 'r',encoding='utf-8') as f:
+        data = json.load(f)
+
+    labels = [label['label'] for label in data['labels']]
+
+    selected_label = st.selectbox("Select a label", labels)
+
+    selected_label_data = next(label for label in data['labels'] if label['label'] == selected_label)
+
+    st.write(f"### {selected_label} Details")
+
+    st.write("#### Description")
+
+    st.write(selected_label_data['description'])
+
+    st.write("#### Attributes:")
+    st.write(selected_label_data['attributes'])
+
+    st.write("#### Relationships:")
+    for relationship in selected_label_data['relationships']:
+        st.write(f"- **{relationship['type']}** --> {relationship['target']}")
 
 
 
@@ -449,8 +475,8 @@ def perf_by_age():
                 TOINTEGER(SUBSTRING(toString(c.date_of_birth), 0, 4)) AS birth_year,
                 c.name AS player_name
                 WITH player_name,
-                pro_year,
-                birth_year,
+                toString(pro_year) AS pro_year,       
+                toString(birth_year) AS birth_year,
                 (pro_year - birth_year) AS age_at_pro
                 RETURN player_name,
                 pro_year,
@@ -488,8 +514,8 @@ def perf_by_age():
                         TOINTEGER(c.pro_year) AS pro_year, 
                         TOINTEGER(SUBSTRING(toString(c.date_of_birth), 0, 4)) AS birth_year
                     WITH c.name AS player_name, 
-                        pro_year, 
-                        birth_year, 
+                        toString(pro_year) AS pro_year,       
+                        toString(birth_year) AS birth_year,
                         (pro_year - birth_year) AS age_at_pro
                     RETURN player_name, 
                         pro_year, 
@@ -528,7 +554,7 @@ def evolution_age():
                             total_wins, 
                             ROUND((TOFLOAT(total_wins) / total_matches) * 100, 2) AS win_percentage,
                             (year - TOINTEGER(SUBSTRING(toString(dob), 0, 4))) AS age
-                        RETURN year, 
+                        RETURN toString(year) AS year, 
                             age, 
                             total_matches, 
                             total_wins, 
@@ -542,9 +568,9 @@ def evolution_age():
 
                 players_df =pd.DataFrame(result)
 
-                players_df['year'] = players_df['year'].astype(int)
-
                 #st.dataframe(players_df)
+
+                #st.text(players_df.dtypes)
 
                 st.line_chart(players_df, x="year", y="total_wins")
 
@@ -724,6 +750,168 @@ def analyse_blessures():
 def stats_finales():
      
      st.header("Statistiques des Finales", divider=True)
+
+     view_option = st.radio("perf_by_age vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
+
+     if view_option == "Vue générale":
+        st.markdown("#### Requête")
+
+        requete = """
+                MATCH (p:COMPETITOR)-[:PLAYED]->(g:GAME)
+                WHERE apoc.convert.fromJsonMap(g.sport_event_context).round.name = 'final'
+                WITH p, 
+                    COUNT(g) AS nb_finales,
+                    COUNT(CASE WHEN g.winner_id = p.id THEN 1 END) AS finales_won,
+                    COUNT(CASE WHEN g.loser_id = p.id THEN 1 END) AS finales_lost
+                WITH p, nb_finales, finales_won, finales_lost, 
+                    (finales_won * 1.0 / nb_finales) AS avg
+                RETURN p.name AS player, nb_finales, finales_won, finales_lost, avg
+                ORDER BY finales_won DESC
+            """
+        st.markdown(f"```cypher\n{requete}\n```")
+
+        if st.button("Exécuter la requête"):
+            result = db.execute_query(requete)
+
+            players_df =pd.DataFrame(result)
+
+            st.dataframe(players_df)
+
+     else:
+          player_option = st.selectbox("Choix du joueur", players['name'])
+
+          if player_option != None:
+            
+                requete = """
+                        MATCH (p:COMPETITOR {name: '""" + player_option + """'})-[:PLAYED]->(g:GAME)
+                WHERE apoc.convert.fromJsonMap(g.sport_event_context).round.name = 'final'
+                WITH p, 
+                    COUNT(g) AS nb_finales,
+                    COUNT(CASE WHEN g.winner_id = p.id THEN 1 END) AS finales_won,
+                    COUNT(CASE WHEN g.loser_id = p.id THEN 1 END) AS finales_lost
+                WITH p, nb_finales, finales_won, finales_lost, 
+                    (finales_won * 1.0 / nb_finales) AS avg
+                RETURN p.name AS player, nb_finales, finales_won, finales_lost, avg
+                ORDER BY finales_won DESC
+                """
+                st.markdown(f"```cypher\n{requete}\n```")
+
+                if st.button("Exécuter la requête"):
+                    #st.text('Exécution de la requête...')
+                    result = db.execute_query(requete)
+
+                    results_df =pd.DataFrame(result)
+
+                    st.dataframe(results_df)
+
+def sponsoring():
+     
+     st.header("Shoes Sponsoring", divider=True)
+
+     st.markdown("#### Requête")
+
+     requete = """
+                            MATCH (c:COMPETITOR)
+                WHERE c.Shoes IS NOT NULL 
+                RETURN c.Shoes AS shoe_brand, COUNT(c) AS number_of_athletes
+                ORDER BY number_of_athletes DESC;
+            """
+     st.markdown(f"```cypher\n{requete}\n```")
+
+     if st.button("Exécuter la requête"):
+            result = db.execute_query(requete)
+
+            result_df =pd.DataFrame(result)
+
+            if not result_df.empty:
+
+                plt.figure(figsize=(10, 6))
+                plt.bar(result_df['shoe_brand'], result_df['number_of_athletes'], color='skyblue')
+                plt.xlabel('Marque de Chaussures')
+                plt.ylabel('Nombre d\'athlètes')
+                plt.title('Histogramme des Athlètes par Marque de Chaussures')
+                plt.xticks(rotation=45, ha='right')  # Rotation des labels des marques
+                plt.tight_layout()
+                
+                # Affichage de l'histogramme
+                st.pyplot(plt)
+     
+
+def perf_by_surface():
+     
+     st.header("Performance par Surface de Jeu", divider=True)
+
+     view_option = st.radio("perf_globale vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
+
+     if view_option == "Vue générale":
+        
+        st.markdown("#### Requête")
+
+        requete = """
+                            MATCH (p:COMPETITOR)-[:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)-[:IS_EDITION_OF]->(c:COMPETITION)
+                WHERE g.statistics IS NOT NULL AND c.Surface IS NOT NULL
+                WITH c.Surface AS surface, apoc.convert.fromJsonMap(g.statistics) AS stats
+                WITH surface, stats.totals.competitors[0].statistics AS metrics
+                RETURN surface,
+                ROUND(AVG(toFloat(metrics.aces)), 2) AS avg_aces,
+                ROUND(AVG(toFloat(metrics.double_faults)), 2) AS avg_double_faults,
+                ROUND(AVG(toFloat(metrics.first_serve_points_won)), 2) AS avg_first_serve_points_won,
+                ROUND(AVG(toFloat(metrics.second_serve_points_won)), 2) AS avg_second_serve_points_won,
+                ROUND(AVG(toFloat(metrics.games_won)), 2) AS avg_games_won,
+                ROUND(AVG(toFloat(metrics.points_won)), 2) AS avg_points_won
+                ORDER BY surface
+        """
+        st.markdown(f"```cypher\n{requete}\n```")
+
+
+        if st.button("Exécuter la requête"):
+            result = db.execute_query(requete)
+
+            players_df =pd.DataFrame(result)
+
+            st.dataframe(players_df)
+            
+
+     else:
+
+        player_option = st.selectbox("Choix du joueur", players['name'])
+
+        if player_option != None:
+            
+            st.markdown("#### Requête")
+
+            requete = f"""
+                    MATCH (p:COMPETITOR)-[:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)-[:IS_EDITION_OF]->(c:COMPETITION)
+                    WHERE p.name = '{player_option}' AND g.statistics IS NOT NULL AND c.Surface IS NOT NULL
+                    WITH c.Surface AS surface, 
+                        apoc.convert.fromJsonMap(g.statistics) AS stats,
+                        COUNT(g) AS total_matches,
+                        SUM(CASE WHEN g.winner_id = p.id THEN 1 ELSE 0 END) AS total_wins
+                    WITH surface, total_matches, total_wins, stats.totals.competitors[0].statistics AS metrics
+                    RETURN surface,
+                        ROUND(AVG(toFloat((total_wins * 1.0 / total_matches) * 100)), 2) AS win_percentage,
+                        ROUND(AVG(toFloat(metrics.aces)), 2) AS avg_aces,
+                        ROUND(AVG(toFloat(metrics.double_faults)), 2) AS avg_double_faults,
+                        ROUND(AVG(toFloat(metrics.first_serve_points_won)), 2) AS avg_first_serve_points_won,
+                        ROUND(AVG(toFloat(metrics.second_serve_points_won)), 2) AS avg_second_serve_points_won,
+                        ROUND(AVG(toFloat(metrics.games_won)), 2) AS avg_games_won,
+                        ROUND(AVG(toFloat(metrics.points_won)), 2) AS avg_points_won
+                    ORDER BY surface;
+            """
+        st.markdown(f"```cypher\n{requete}\n```")
+
+        if st.button("Exécuter la requête"):
+            result = db.execute_query(requete)
+
+            players_df =pd.DataFrame(result)
+
+            st.dataframe(players_df)
+
+
+
+
+     
+
 
 
 
