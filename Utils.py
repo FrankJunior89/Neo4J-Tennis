@@ -104,7 +104,7 @@ def perfomance_globale_joueurs():
 
         min_matches = st.number_input("Nombre matchs  (min):", min_value=0, value=100, step=10)
 
-        player_option = st.selectbox("Choix du joueur", players['name'])
+        player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos")) 
 
         if player_option != None:
             
@@ -142,7 +142,7 @@ def meilleur_ami():
 
     st.markdown("#### Requête")
 
-    player_option = st.selectbox("Choix du joueur", players['name'])
+    player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
     if player_option != None:
     
@@ -404,7 +404,7 @@ def perf_tournoi_majeurs():
                     total_matches, 
                     total_wins, 
                     win_percentage
-                ORDER BY win_percentage DESC
+                ORDER BY win_percentage DESC, total_wins DESC
                 LIMIT 10
         """
         st.markdown(f"```cypher\n{requete}\n```")
@@ -422,7 +422,7 @@ def perf_tournoi_majeurs():
         
         years = st.multiselect("Year   ",[2022,2023,2024],default=[2024])
 
-        player_option = st.selectbox("Choix du joueur", players['name'])
+        player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
         if player_option != None:
             
@@ -498,7 +498,7 @@ def perf_by_age():
 
 
     else:
-        player_option = st.selectbox("Choix du joueur", players['name'])
+        player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
         if player_option != None:
 
@@ -534,7 +534,7 @@ def perf_by_age():
 def evolution_age():
     st.header("Performance en Fonction de l'age", divider=True)
 
-    player_option = st.selectbox("Choix du joueur", players['name'])
+    player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
     if player_option != None:
 
@@ -581,13 +581,12 @@ def evolution_age():
                     x=alt.X("year:O", title="Year"),  # Axe X : les années
                     y=alt.Y("Count:Q", title="Count"),  # Axe Y : les valeurs (correctif ici)
                     color=alt.Color("Metric:N", title="Metric"),  # Couleurs pour différencier les métriques
-                    xOffset="Metric:N"  # Décalage horizontal pour afficher côte à côte
+                    xOffset=alt.XOffset("Metric:N", sort=["total_wins", "total_matches"])  # Décalage horizontal pour afficher côte à côte
                 ).properties(
                     width=600,
                     height=400,
                     title="Comparison of Wins and Matches"
                 )
-
                 # Affichage dans Streamlit
                 st.altair_chart(chart, use_container_width=True)
 
@@ -624,7 +623,7 @@ def perf_by_ranking():
                     total_matches_as_favorite,
                     wins_as_favorite,
                     win_percentage_as_favorite
-                    ORDER BY win_percentage_as_favorite DESC
+                    ORDER BY win_percentage_as_favorite DESC, wins_as_favorite DESC
             """
         st.markdown(f"```cypher\n{requete}\n```")
 
@@ -637,7 +636,7 @@ def perf_by_ranking():
 
     else:
 
-        player_option = st.selectbox("Choix du joueur", players['name'])
+        player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
         if player_option != None:
                     requete = f"""
@@ -678,7 +677,7 @@ def meilleur_ennemi():
 
     st.markdown("#### Requête")
 
-    player_option = st.selectbox("Choix du joueur", players['name'])
+    player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
     if player_option != None:
     
@@ -743,7 +742,7 @@ def analyse_blessures():
 
      else:
 
-        player_option = st.selectbox("Choix du joueur", players['name'])
+        player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
         if player_option != None:
                     requete = f"""
@@ -787,7 +786,7 @@ def stats_finales():
                 WITH p, nb_finales, finales_won, finales_lost, 
                     (finales_won * 1.0 / nb_finales) AS avg
                 RETURN p.name AS player, nb_finales, finales_won, finales_lost, avg
-                ORDER BY finales_won DESC
+                ORDER BY finales_won DESC, nb_finales DESC
             """
         st.markdown(f"```cypher\n{requete}\n```")
 
@@ -799,7 +798,7 @@ def stats_finales():
             st.dataframe(players_df)
 
      else:
-          player_option = st.selectbox("Choix du joueur", players['name'])
+          player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
           if player_option != None:
             
@@ -895,7 +894,7 @@ def perf_by_surface():
 
      else:
 
-        player_option = st.selectbox("Choix du joueur", players['name'])
+        player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
         if player_option != None:
             
@@ -953,7 +952,7 @@ def nation_formation():
         requete = f"""
 MATCH (c:COMPETITOR)-[r:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)
 MATCH (n:NATION)
-WHERE n.country_code2 = c.country_code  // Correspondance explicite entre COMPETITOR et NATION
+WHERE n.country_code2 = c.country_code
 AND n.hours_of_sport IS NOT NULL
 AND n.population_2018 IS NOT NULL
 AND n.licensees_2018 IS NOT NULL
@@ -997,17 +996,41 @@ ORDER BY win_percentage_by_country DESC
             if results_df.empty:
                 st.warning(f"Aucun résultat valide pour {x_axis_option}.")
             else:
-                # Affichage du nuage de points
+                # Affichage du nuage de points avec étiquettes
                 fig, ax = plt.subplots(figsize=(10, 6))
-                ax.scatter(results_df[x_axis_column], results_df['total_players_by_country'], c='blue', label='Pays')
-                ax.set_xlabel(x_axis_option.replace('_', ' ').title())  # Met en forme le titre de l'axe
-                ax.set_ylabel('Nombre de joueurs')
-                ax.set_title(f'Nuage de points: {x_axis_option.replace("_", " ").title()} vs Nombre de joueurs')
+
+                # Tracé des points
+                scatter = ax.scatter(
+                    results_df[x_axis_column], 
+                    results_df['total_players_by_country'], 
+                    c='blue', 
+                    label='Pays'
+                )
+
+                # Ajout des étiquettes pour chaque point
+                for i, country in enumerate(results_df['country']):  # Supposons que la colonne 'country' contient les noms des pays
+                    ax.annotate(
+                        country, 
+                        (results_df[x_axis_column].iloc[i], results_df['total_players_by_country'].iloc[i]),
+                        textcoords="offset points",  # Décale le texte
+                        xytext=(5, 5),  # Distance du texte par rapport au point
+                        ha='left',  # Alignement horizontal
+                        fontsize=8,  # Taille de la police pour éviter la surcharge visuelle
+                        color='black'  # Couleur des étiquettes
+                    )
+
+                # Configuration des axes et du titre
+                ax.set_xlabel(x_axis_option.replace('_', ' ').title())  # Met en forme le titre de l'axe X
+                ax.set_ylabel('Nombre de joueurs')  # Titre de l'axe Y
+                ax.set_title(f'Nuage de points: {x_axis_option.replace("_", " ").title()} vs Nombre de joueurs')  # Titre du graphique
+
+                # Affichage dans Streamlit
                 st.pyplot(fig)
+
 
             # Affichage des 10 premiers résultats pour débogage
             st.dataframe(results_df.head(10)) 
-              
+
     else:
 
         country_option = st.selectbox("Choix du pays", nations['country'])
@@ -1017,7 +1040,7 @@ ORDER BY win_percentage_by_country DESC
         MATCH (c:COMPETITOR)-[r:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)
         MATCH (n:NATION)
         WHERE n.country_code2 = c.country_code
-        AND c.country = '{country_option}'  // Filtre pour le pays sélectionné
+        AND c.country = '{country_option}'
         WITH c.country AS country, 
             n.hours_of_sport AS hours_of_sport,
             COUNT(g) AS total_matches, 
@@ -1047,8 +1070,8 @@ ORDER BY win_percentage_by_country DESC
                 results_df = pd.DataFrame(result)  # Convertit le résultat en DataFrame
                 st.dataframe(results_df)          # Affiche le DataFrame dans Streamlit
 
-
-
+def profil_meteo():
+    pass
      
 
 
