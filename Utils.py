@@ -63,6 +63,8 @@ def perfomance_globale_joueurs():
 
     if view_option == "Vue générale":
 
+        st.write("Cette requête calcule le pourcentage de victoires des joueurs pour une ou plusieurs années spécifiées par l'utilisateur en se limitant aux joueurs ayant disputé plus d’un nombre minimal de matchs également défini par l’utilisateur. Elle retourne le nom des joueurs, le nombre total de matchs joués, le nombre total de victoires, et le pourcentage de victoires, triés par ordre décroissant de pourcentage de victoires.")
+
         years = st.multiselect("Year :",[2022,2023,2024],default=[2024])
 
         min_matches = st.number_input("Nombre matchs (min):", min_value=0, value=100, step=10)
@@ -99,6 +101,8 @@ def perfomance_globale_joueurs():
             
 
     else:
+
+        st.write("Cette requête calcule le nombre total de matchs et de victoires ainsi que le pourcentage de victoires pour le joueur sélectionné, uniquement pour les années données par l'utilisateur.")
         
         years = st.multiselect("Year  :",[2022,2023,2024],default=[2024])
 
@@ -139,6 +143,8 @@ def perfomance_globale_joueurs():
 
 def meilleur_ami():
     st.header("Mon meilleur Ami", divider=True)
+
+    st.write("Cette requête affiche le duo avec lequel un joueur donné (entré par l'utilisateur) a remporté le plus de matchs. Elle calcule le nombre total de matchs joués avec ce duo, ainsi que le nombre de victoires. Le duo avec le plus de victoires est affiché en premier.")
 
     st.markdown("#### Requête")
 
@@ -185,6 +191,8 @@ def classement_coachs():
 
     if view_option == "Vue générale":
 
+        st.write("Cette requête donne la liste des 10 entraîneurs ayant le meilleur taux de victoires moyen pour les matchs de leurs joueurs. Elle calcule le taux de victoires pour chaque entraîneur en fonction des matchs gagnés par leurs joueurs, et trie les entraîneurs par leur taux de victoires moyen, du plus élevé au plus bas.")
+
         st.markdown("#### Requête")
 
         requete = """
@@ -213,6 +221,9 @@ def classement_coachs():
                 st.dataframe(coachs_df)
 
     else:
+
+        st.write("Cette requête donne le taux de victoires moyen et le nombre total de matchs joués par les joueurs d'un entraîneur sélectionné par l’utilisateur. Elle calcule le taux de victoires moyen de l'entraîneur basé sur les matchs gagnés par ses joueurs puis trie les résultats en fonction du taux de victoires moyen.")
+
         coach_option = st.selectbox("Choix du Coach", coachs['coach_name'])
 
         if coach_option != None:
@@ -251,6 +262,9 @@ def classement_coachs():
 
 def compet_favoris_par_nation():
     st.header("Competitions favorites des Nations", divider=True)
+
+    st.write ("Cette requête donne les 5 compétitions où la nation sélectionnée a remporté le plus de victoires. Elle affiche le nom de la compétition et le nombre de victoires.")
+
     nation_option = st.selectbox("Nation", nations['country'])
 
     if nation_option != None:
@@ -288,6 +302,8 @@ def compet_favoris_par_nation():
 def men_vs_women():
     st.header("Men vs Women", divider=True)
 
+    st.write("Cette requête calcule la moyenne de différentes statistiques de jeu (comme les aces, les doubles fautes, les points gagnés au premier et au second service, les jeux gagnés et les points gagnés) pour les joueurs, en séparant les résultats par sexe. Elle retourne ces moyennes pour chaque sexe (hommes et femmes) et trie les résultats par sexe.")
+
     st.markdown("#### Requête")
 
     requete ="""
@@ -317,6 +333,8 @@ def service_and_meteo():
 
     st.header("Influence de la Météo sur le Service", divider=True)
     
+    st.write("Cette requête donne la moyenne des statistiques de jeu (comme les aces, les breakpoints gagnés, les fautes doubles, etc.) pour les compétitions ayant eu lieu lorsque la vitesse du vent est inférieure à une valeur maximale, l'humidité est inférieure à une autre valeur maximale et la radiation solaire est supérieure à une valeur minimale (ces valeurs étant fournies par l'utilisateur).")
+
     windspeed_threshold = st.number_input("Windspeed (max)", min_value=0.0, value=15.0, step=1.0)
     humidity_threshold = st.number_input("Humidity (max):", min_value=0.0, max_value=100.0, value=60.0, step=1.0)
     solarradiation_threshold = st.number_input("Solar Radiation (max):", min_value=0.0, value=200.0, step=10.0)
@@ -383,6 +401,8 @@ def perf_tournoi_majeurs():
 
     if view_option == "Vue générale":
 
+        st.write("Cette requête calcule pour chaque joueur : le pourcentage de victoires dans les compétitions de type 'Grand Slam' durant les années choisies par l'utilisateur. Elle affiche le nombre total de matchs joués, le nombre de victoires et le pourcentage de victoires trié par pourcentage décroissant.")
+
         years = st.multiselect("Year :",[2022,2023,2024],default=[2024])
 
         
@@ -419,6 +439,8 @@ def perf_tournoi_majeurs():
             
 
     else:
+
+        st.write("Cette requête calcule pour un joueur choisi par l'utilisateur : le pourcentage de victoires dans les compétitions de type 'Grand Slam' pour chaque année sélectionnée. Elle affiche le nombre total de matchs joués, le nombre de victoires et le pourcentage de victoires trié par année et par pourcentage de victoires décroissant.")
         
         years = st.multiselect("Year   ",[2022,2023,2024],default=[2024])
 
@@ -465,6 +487,9 @@ def perf_by_age():
     view_option = st.radio("perf_by_age vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
 
     if view_option == "Vue générale":
+
+        st.write("Cette requête affiche les 10 premiers joueurs, triés par âge au moment de leur passage professionnel en calculant l'écart entre l'année de leur passage professionnel (pro_year) et leur année de naissance (birth_year). Elle retourne le nom du joueur, l'année de leur passage professionnel, leur année de naissance et leur âge au moment de leur passage professionnel.")
+        
         st.markdown("#### Requête")
 
         requete = """
@@ -498,6 +523,8 @@ def perf_by_age():
 
 
     else:
+        st.write("Cette requête affiche les informations pour un joueur spécifique dont le nom est fourni par l'utilisateur. Elle calcule l'âge du joueur au moment de son passage professionnel en fonction de son année de naissance et de son année de passage professionnel. Elle retourne le nom du joueur, l'année de son passage professionnel, son année de naissance et son âge au moment de son passage professionnel.")
+
         player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
         if player_option != None:
@@ -533,6 +560,8 @@ def perf_by_age():
 
 def evolution_age():
     st.header("Performance en Fonction de l'age", divider=True)
+
+    st.write("Cette requête affiche les statistiques de matchs pour un joueur spécifique dont le nom est fourni par l'utilisateur, pour chaque année de saison. Elle calcule le nombre total de matchs joués, le nombre de victoires, le pourcentage de victoires, ainsi que l'âge du joueur à chaque année de saison. Les résultats sont triés par année et par âge du joueur.")
 
     player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
@@ -600,6 +629,8 @@ def perf_by_ranking():
     view_option = st.radio("perf_by_ranking vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
 
     if view_option == "Vue générale":
+        st.write("Cette requête affiche les statistiques de performance pour un joueur lorsqu'il est considéré comme le favori dans un match, en fonction de son classement en simple. Elle calcule le nombre total de matchs joués en tant que favori, le nombre de victoires en tant que favori et le pourcentage de victoires. Les résultats sont triés par pourcentage de victoires, du plus élevé au plus bas.")
+
         st.markdown("#### Requête")
 
         requete = """
@@ -635,6 +666,7 @@ def perf_by_ranking():
             st.dataframe(results_df)
 
     else:
+        st.write("Cette requête affiche les statistiques de performance pour un joueur donné lorsqu'il est considéré comme le favori dans un match, en fonction de son classement en simple. Elle calcule le nombre total de matchs joués en tant que favori, le nombre de victoires en tant que favori et le pourcentage de victoires. Les résultats ne sont affichés que si le joueur a joué des matchs en tant que favori.")
 
         player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
@@ -674,6 +706,8 @@ def perf_by_ranking():
 def meilleur_ennemi():
     
     st.header("Meilleurs Ennemis", divider=True)
+
+    st.write("Cette requête affiche les statistiques des 5 principaux rivaux contre lesquels un joueur donné (entré par l'utilisateur) a perdu le plus de matchs. Elle calcule le nombre total de matchs joués contre chaque rival, le nombre de défaites et le pourcentage de défaites contre chaque rival. Les résultats sont triés par pourcentage de défaites et nombre de matchs joués.")
 
     st.markdown("#### Requête")
 
@@ -717,6 +751,9 @@ def analyse_blessures():
      view_option = st.radio("analysis_blessures vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
      
      if view_option == "Vue générale":
+
+        st.write("Cette requête donne la répartition des types de blessures des compétiteurs en affichant chaque type de blessure et le pourcentage qu'il représente par rapport au nombre total de blessures. Les types de blessures sont triés par pourcentage, du plus élevé au plus bas.")
+
         st.markdown("#### Requête")
 
         requete = """
@@ -741,6 +778,7 @@ def analyse_blessures():
             st.dataframe(results_df)
 
      else:
+        st.write("Cette requête donne les types de blessures subies par le joueur sélectionné ainsi que le nombre total de blessures pour chaque année. Les résultats sont triés par année de manière décroissante.")
 
         player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
@@ -774,6 +812,9 @@ def stats_finales():
      view_option = st.radio("perf_by_age vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
 
      if view_option == "Vue générale":
+
+        st.write("Cette requête donne le nombre de finales jouées, gagnées et perdues pour chaque joueur ainsi que leur pourcentage de victoires en finale. Les résultats sont triés par nombre de finales gagnées de manière décroissante.")
+        
         st.markdown("#### Requête")
 
         requete = """
@@ -798,6 +839,7 @@ def stats_finales():
             st.dataframe(players_df)
 
      else:
+          st.write("Cette requête donne le nombre de finales jouées, gagnées et perdues par le joueur sélectionné ainsi que le pourcentage de victoires en finale. Les résultats sont triés par nombre de finales gagnées, du plus grand au plus petit.")
           player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
           if player_option != None:
@@ -827,6 +869,8 @@ def stats_finales():
 def sponsoring():
      
      st.header("Shoes Sponsoring", divider=True)
+
+     st.write("Cette requête donne le nombre d'athlètes qui jouent avec une marque de chaussures spécifique. Elle liste les marques de chaussures et le nombre d'athlètes associés à chaque marque, trié par le nombre d'athlètes, de la marque la plus populaire à la moins populaire.")
 
      st.markdown("#### Requête")
 
@@ -864,6 +908,8 @@ def perf_by_surface():
      view_option = st.radio("perf_globale vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
 
      if view_option == "Vue générale":
+
+        st.write("Cette requête calcule les statistiques moyennes de performance des joueurs en fonction du type de surface (par exemple, gazon, terre battue) des compétitions. Les statistiques incluent le nombre moyen d'aces, de doubles fautes, les points gagnés sur le premier et le second service, les jeux gagnés, et les points gagnés. Les résultats sont triés par type de surface.")
         
         st.markdown("#### Requête")
 
@@ -893,6 +939,8 @@ def perf_by_surface():
             
 
      else:
+
+        st.write("Cette requête calcule, pour un joueur choisi par l'utilisateur, les statistiques moyennes de performance en fonction des types de surface des compétitions. Elle inclut le pourcentage moyen de victoires, le nombre moyen d'aces, de doubles fautes, les points gagnés sur le premier et le second service, les jeux gagnés, et les points gagnés. Les résultats sont triés par type de surface.")
 
         player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos"))
 
@@ -945,6 +993,9 @@ def nation_formation():
         }
 
     if view_option == "Vue générale":
+
+        st.write("Cette requête donne des statistiques pour chaque pays, en fonction de la variable choisie par l'utilisateur (soit les heures EPS en primaire, la population en 2018 ou les licenciés en 2018). Elle inclut le nombre total de matchs, le nombre total de victoires, le nombre total de joueurs et le pourcentage de victoires, tout cela trié par le pourcentage de victoires décroissant.")
+
         st.markdown("#### Requête")
 
         x_axis_column = column_mapping[x_axis_option]
@@ -1032,6 +1083,8 @@ ORDER BY win_percentage_by_country DESC
             st.dataframe(results_df.head(10)) 
 
     else:
+
+        st.write("Cette requête donne des statistiques pour un pays spécifique choisi par l'utilisateur. Elle inclut le nombre total de matchs joués par les compétiteurs de ce pays, le nombre total de victoires, le nombre total de joueurs et le pourcentage de victoires. Les résultats sont triés par le pourcentage de victoires décroissant en fonction de la variable choisie (comme heures EPS en primaire, population en 2018 ou licenciés en 2018).")
 
         country_option = st.selectbox("Choix du pays", nations['country'])
 
