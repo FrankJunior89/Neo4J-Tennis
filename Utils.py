@@ -870,14 +870,14 @@ def sponsoring():
      
      st.header("Shoes Sponsoring", divider=True)
 
-     st.write("Cette requête donne le nombre d'athlètes qui jouent avec une marque de chaussures spécifique. Elle liste les marques de chaussures et le nombre d'athlètes associés à chaque marque, trié par le nombre d'athlètes, de la marque la plus populaire à la moins populaire.")
+     st.write("Cette requête donne le nombre d'athlètes qui jouent avec une marque de raquette spécifique. Elle liste les marques de raquettes et le nombre d'athlètes associés à chaque marque, trié par le nombre d'athlètes, de la marque la plus populaire à la moins populaire.")
 
      st.markdown("#### Requête")
 
      requete = """
                             MATCH (c:COMPETITOR)
-                WHERE c.Shoes IS NOT NULL 
-                RETURN c.Shoes AS shoe_brand, COUNT(c) AS number_of_athletes
+                WHERE c.Racket IS NOT NULL 
+                RETURN c.Racket AS rack_brand, COUNT(c) AS number_of_athletes
                 ORDER BY number_of_athletes DESC;
             """
      st.markdown(f"```cypher\n{requete}\n```")
@@ -887,18 +887,7 @@ def sponsoring():
 
             result_df =pd.DataFrame(result)
 
-            if not result_df.empty:
-
-                plt.figure(figsize=(10, 6))
-                plt.bar(result_df['shoe_brand'], result_df['number_of_athletes'], color='skyblue')
-                plt.xlabel('Marque de Chaussures')
-                plt.ylabel('Nombre d\'athlètes')
-                plt.title('Histogramme des Athlètes par Marque de Chaussures')
-                plt.xticks(rotation=45, ha='right')  # Rotation des labels des marques
-                plt.tight_layout()
-                
-                # Affichage de l'histogramme
-                st.pyplot(plt)
+            st.dataframe(result_df.head())
      
 
 def perf_by_surface():
