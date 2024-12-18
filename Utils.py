@@ -106,8 +106,6 @@ def perfomance_globale_joueurs():
         
         years = st.multiselect("Year  :",[2022,2023,2024],default=[2024])
 
-        min_matches = st.number_input("Nombre matchs  (min):", min_value=0, value=100, step=10)
-
         player_option = st.selectbox("Choix du joueur", sorted(players['name']), index=sorted(players['name']).index("Alcaraz Carlos")) 
 
         if player_option != None:
@@ -120,7 +118,6 @@ def perfomance_globale_joueurs():
                 WITH c, 
                     COUNT(g) AS total_matches, 
                     SUM(CASE WHEN g.winner_id = c.id THEN 1 ELSE 0 END) AS total_wins
-                WHERE total_matches > {min_matches}
                 WITH c.name AS player_name, 
                     total_matches, 
                     total_wins, 
