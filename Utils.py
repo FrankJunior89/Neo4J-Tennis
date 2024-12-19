@@ -1110,19 +1110,374 @@ ORDER BY win_percentage_by_country DESC
                 st.dataframe(results_df)          # Affiche le DataFrame dans Streamlit
 
 def profil_meteo():
-    pass
-     
-
-
-
-
-
+    st.header("Corrélation météo/résultat", divider=True)
     
+    # view_option = st.radio("analysis_blessures vue", ("Vue générale", "Vue personnalisée"),label_visibility="hidden")
+    requete_nation = """
+    MATCH (w:WEATHER)
+WITH 
+    split(w.name, ",") AS nameParts, 
+    w.humidity AS humidity, 
+    w.solarradiation AS solarradiation,
+    w.temp AS temp, 
+    w.tempmax AS tempmax, 
+    w.tempmin AS tempmin, 
+    w.windspeed AS windspeed
+WITH 
+    trim(nameParts[-1]) AS lastPartOfName,
+    humidity, solarradiation, temp, tempmax, tempmin, windspeed
+WITH 
+    CASE 
+        WHEN lastPartOfName = "United Kingdom" THEN "Great Britain" 
+        WHEN lastPartOfName = "Italia" THEN "Italy" 
+        WHEN lastPartOfName = "México" THEN "Mexico" 
+        WHEN lastPartOfName = "United States" THEN "USA" 
+        WHEN lastPartOfName = "Chine" THEN "China" 
+        WHEN lastPartOfName = "España" THEN "Spain" 
+        WHEN lastPartOfName = "Serbie" THEN "Serbia" 
+        ELSE lastPartOfName 
+    END AS Country
+return distinct Country
+"""
+    nation_meteo = db.execute_query(requete_nation)
+    nation_meteo_df = pd.DataFrame(nation_meteo)
+    # Sélection de la variable pour l'axe des abscisses
+    # x_axis_option = st.selectbox(
+    #     "Choisir la variable pour l'axe des abscisses",
+    #     ("heures EPS en primaire", "population en 2018", "licenciés en 2018")
+    # )
+
+    # if view_option == "Vue générale":
+
+#         st.write("Cette requête donne des statistiques pour chaque pays, en fonction de la variable choisie par l'utilisateur (soit les heures EPS en primaire, la population en 2018 ou les licenciés en 2018). Elle inclut le nombre total de matchs, le nombre total de victoires, le nombre total de joueurs et le pourcentage de victoires, tout cela trié par le pourcentage de victoires décroissant.")
+
+#         st.markdown("#### Requête")
+
+#         x_axis_column = column_mapping[x_axis_option]
+
+#         requete = f"""
+# MATCH (c:COMPETITOR)-[r:PLAYED]->(g:GAME)-[:HAPPENED_IN]->(s:SEASON)
+# MATCH (n:NATION)
+# WHERE n.country_code2 = c.country_code
+# AND n.hours_of_sport IS NOT NULL
+# AND n.population_2018 IS NOT NULL
+# AND n.licensees_2018 IS NOT NULL
+# WITH c.country AS country, 
+#      n.hours_of_sport AS hours_of_sport,
+#      n.population_2018 AS population,
+#      n.licensees_2018 AS licencies,
+#      COUNT(g) AS total_matches, 
+#      SUM(CASE WHEN g.winner_id = c.id THEN 1 ELSE 0 END) AS total_wins, 
+#      COUNT(DISTINCT c.id) AS total_players
+# WITH country, 
+#      hours_of_sport,
+#      population,
+#      licencies,
+#      total_matches AS total_matches_by_country,
+#      total_wins AS total_wins_by_country,
+#      total_players AS total_players_by_country,
+#      ROUND((TOFLOAT(total_wins) / total_matches) * 100, 2) AS win_percentage_by_country
+# RETURN country, 
+#        hours_of_sport,
+#        population,
+#        licencies,
+#        total_matches_by_country,
+#        total_wins_by_country,
+#        total_players_by_country,
+#        win_percentage_by_country
+# ORDER BY win_percentage_by_country DESC
+#         """
+        
+#         st.markdown(f"```cypher\n{requete}\n```")
+
+#         if st.button("Exécuter la requête"):
+#             result = db.execute_query(requete)
+#             results_df = pd.DataFrame(result)
+
+#             # Filtrage des données pour s'assurer que la variable choisie n'est pas nulle
+#             # Appliquer le filtrage sur le DataFrame après avoir récupéré les résultats
+#             results_df = results_df[results_df[x_axis_column].notnull()]
+
+#             # Vérifier si le DataFrame après filtrage n'est pas vide
+#             if results_df.empty:
+#                 st.warning(f"Aucun résultat valide pour {x_axis_option}.")
+#             else:
+#                 # Affichage du nuage de points avec étiquettes
+#                 fig, ax = plt.subplots(figsize=(10, 6))
+
+#                 # Tracé des points
+#                 scatter = ax.scatter(
+#                     results_df[x_axis_column], 
+#                     results_df['total_players_by_country'], 
+#                     c='blue', 
+#                     label='Pays'
+#                 )
+
+#                 # Ajout des étiquettes pour chaque point
+#                 for i, country in enumerate(results_df['country']):  # Supposons que la colonne 'country' contient les noms des pays
+#                     ax.annotate(
+#                         country, 
+#                         (results_df[x_axis_column].iloc[i], results_df['total_players_by_country'].iloc[i]),
+#                         textcoords="offset points",  # Décale le texte
+#                         xytext=(5, 5),  # Distance du texte par rapport au point
+#                         ha='left',  # Alignement horizontal
+#                         fontsize=8,  # Taille de la police pour éviter la surcharge visuelle
+#                         color='black'  # Couleur des étiquettes
+#                     )
+
+#                 # Configuration des axes et du titre
+#                 ax.set_xlabel(x_axis_option.replace('_', ' ').title())  # Met en forme le titre de l'axe X
+#                 ax.set_ylabel('Nombre de joueurs')  # Titre de l'axe Y
+#                 ax.set_title(f'Nuage de points: {x_axis_option.replace("_", " ").title()} vs Nombre de joueurs')  # Titre du graphique
+
+#                 # Affichage dans Streamlit
+#                 st.pyplot(fig)
 
 
+#             # Affichage des 10 premiers résultats pour débogage
+#             st.dataframe(results_df.head(10)) 
 
+    # else:
 
+    st.write("Cette requête en contient 2 puisqu'elle cherche à établir une corrélation entre le nombre de victoire de joueurs dont la nationnalité serait proche du pays dans lequel il joue selon certains indicateurs climatiques.")
 
+    country_option = st.selectbox("Choix du pays", nation_meteo_df['Country'])
 
+    if country_option:  # Vérifie qu'un pays a été sélectionné
+        requete_game = f"""
+MATCH (m:GAME)
+WHERE m.country_name = "{country_option}"
+UNWIND [m.competitor1_country, m.competitor2_country] AS country
+WITH country, 
+     m, 
+     CASE 
+         WHEN m.winner_id = m.competitor1_id THEN m.competitor1_country
+         WHEN m.winner_id = m.competitor2_id THEN m.competitor2_country
+         ELSE NULL
+     END AS winner_country
+WITH 
+    country, 
+    COUNT(*) AS games_played, 
+    SUM(CASE WHEN country = winner_country THEN 1 ELSE 0 END) AS games_won
+RETURN 
+    country, 
+    games_played, 
+    games_won, 
+    (games_won * 1.0 / games_played) AS win_ratio
+ORDER BY win_ratio DESC;
+        """
+        requete_meteo = f"""
+// Partie 1 : Calcul des moyennes par pays avec remplacement des noms spécifiques
+MATCH (w:WEATHER)
+WITH 
+    split(w.name, ",") AS nameParts, 
+    w.humidity AS humidity, 
+    w.solarradiation AS solarradiation,
+    w.temp AS temp, 
+    w.tempmax AS tempmax, 
+    w.tempmin AS tempmin, 
+    w.windspeed AS windspeed
+WITH 
+    trim(nameParts[-1]) AS lastPartOfName,
+    humidity, solarradiation, temp, tempmax, tempmin, windspeed
+WITH 
+    CASE 
+        WHEN lastPartOfName = "United Kingdom" THEN "Great Britain" 
+        WHEN lastPartOfName = "Italia" THEN "Italy" 
+        WHEN lastPartOfName = "México" THEN "Mexico" 
+        WHEN lastPartOfName = "United States" THEN "USA" 
+        WHEN lastPartOfName = "Chine" THEN "China" 
+        WHEN lastPartOfName = "España" THEN "Spain" 
+        WHEN lastPartOfName = "Serbie" THEN "Serbia" 
+        ELSE lastPartOfName 
+    END AS Country,
+    avg(humidity) AS avgHumidity, 
+    avg(solarradiation) AS avgSolarRadiation, 
+    avg(temp) AS avgTemp, 
+    avg(tempmax) AS avgTempMax, 
+    avg(tempmin) AS avgTempMin, 
+    avg(windspeed) AS avgWindSpeed
 
+// Partie 2 : Création d une collection avec toutes les moyennes
+WITH collect({{
+    country: Country, 
+    avgHumidity: avgHumidity, 
+    avgSolarRadiation: avgSolarRadiation, 
+    avgTemp: avgTemp, 
+    avgTempMax: avgTempMax, 
+    avgTempMin: avgTempMin, 
+    avgWindSpeed: avgWindSpeed
+}}) AS weatherData
 
+// Partie 3 : Sélection du pays de référence (à modifier selon le besoin)
+WITH weatherData,
+     '{country_option}' AS referenceCountry  // Changez ici le pays de référence
+
+// Partie 4 : Extraction des données du pays de référence
+WITH weatherData,
+     referenceCountry,
+     [x IN weatherData WHERE x.country = referenceCountry][0] AS refCountryData
+
+// Partie 5 : Calcul de la distance euclidienne et du score global pour chaque pays
+UNWIND weatherData AS countryData
+WITH countryData,
+     referenceCountry,
+     refCountryData,
+     SQRT(
+        (countryData.avgHumidity - refCountryData.avgHumidity) * (countryData.avgHumidity - refCountryData.avgHumidity) +
+        (countryData.avgSolarRadiation - refCountryData.avgSolarRadiation) * (countryData.avgSolarRadiation - refCountryData.avgSolarRadiation) +
+        (countryData.avgTemp - refCountryData.avgTemp) * (countryData.avgTemp - refCountryData.avgTemp) +
+        (countryData.avgTempMax - refCountryData.avgTempMax) * (countryData.avgTempMax - refCountryData.avgTempMax) +
+        (countryData.avgTempMin - refCountryData.avgTempMin) * (countryData.avgTempMin - refCountryData.avgTempMin) +
+        (countryData.avgWindSpeed - refCountryData.avgWindSpeed) * (countryData.avgWindSpeed - refCountryData.avgWindSpeed)
+     ) AS euclideanDistance,
+     // Calcul du score global normalisé
+     (
+        countryData.avgHumidity + 
+        countryData.avgSolarRadiation / 10 +  // Normalisé car échelle différente
+        countryData.avgTemp + 
+        countryData.avgTempMax + 
+        countryData.avgTempMin + 
+        countryData.avgWindSpeed
+     ) AS globalScore
+WHERE countryData.country <> referenceCountry
+
+// Partie 6 : Retour des résultats triés par distance
+RETURN 
+    countryData.country AS Country,
+    round(euclideanDistance * 100) / 100 AS Distance,
+    round(globalScore * 100) / 100 AS GlobalScore,
+    round(countryData.avgHumidity * 100) / 100 AS Humidity,
+    round(countryData.avgSolarRadiation * 100) / 100 AS SolarRadiation,
+    round(countryData.avgTemp * 100) / 100 AS Temperature,
+    round(countryData.avgTempMax * 100) / 100 AS TempMax,
+    round(countryData.avgTempMin * 100) / 100 AS TempMin,
+    round(countryData.avgWindSpeed * 100) / 100 AS WindSpeed
+ORDER BY Distance ASC
+        """
+        # Affiche la requête dans Streamlit
+        st.markdown(f"```cypher\n{requete_game}\n```")
+        st.markdown(f"```cypher\n{requete_meteo}\n```")
+
+#### Requête pour les matchs
+        # Bouton pour exécuter la requête
+        if st.button("Exécuter la requête"):
+            # Exécution de la requête et création du DataFrame
+            result_game = db.execute_query(requete_game)
+            result_game_df = pd.DataFrame(result_game)
+            result_game_df = pd.merge(result_game_df, nation_meteo_df, left_on='country', right_on='Country')
+            # Transformation des données pour Altair
+            data_melted = result_game_df.melt(
+                id_vars=["country"], 
+                value_vars=["games_won", "games_played"],
+                var_name="Metric", 
+                value_name="Count"
+            )
+
+            # Création du graphique Altair
+            chart = alt.Chart(data_melted).mark_bar().encode(
+                x=alt.X("country:N", title="Pays"),  # Changé de 'year' à 'country'
+                y=alt.Y("Count:Q", title="Nombre de matchs"),
+                color=alt.Color(
+                    "Metric:N",
+                    title="Type",
+                    scale=alt.Scale(
+                        domain=["games_won", "games_played"],
+                        range=["#2ecc71", "#3498db"]  # Vert pour les victoires, bleu pour le total
+                    )
+                ),
+                xOffset="Metric:N",  # Pour les barres côte à côte
+                tooltip=[
+                    alt.Tooltip("country:N", title="Pays"),
+                    alt.Tooltip("Metric:N", title="Type"),
+                    alt.Tooltip("Count:Q", title="Nombre de matchs")
+                ]
+            ).properties(
+                width=600,
+                height=400,
+                title="Matchs gagnés vs total par pays"
+            ).configure_axis(
+                labelAngle=-45  # Rotation des labels pour une meilleure lisibilité
+            )
+
+            # Affichage dans Streamlit
+            st.altair_chart(chart, use_container_width=True)
+
+            # Transformation des données pour Altair
+            data_melted = result_game_df.melt(
+                id_vars=["country"], 
+                value_vars=["win_ratio"],  # Utilisation de la variable 'Distance'
+                var_name="Metric", 
+                value_name="Count"
+            )
+
+            # Création du graphique Altair
+            chart = alt.Chart(data_melted).mark_bar().encode(
+                x=alt.X("country:N", title="Pays"),  # Changé de 'year' à 'country'
+                y=alt.Y("Count:Q", title="win_ratio"),
+                color=alt.Color(
+                    "Metric:N",
+                    title="Métrique",
+                    scale=alt.Scale(
+                        domain=["win_ratio"],  # Remplace 'games_won' et 'games_played' par 'Distance'
+                        range=["#e74c3c"]  # Choix d'une couleur pour 'Distance' (par exemple, rouge)
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip("country:N", title="Pays"),
+                    alt.Tooltip("Metric:N", title="Métrique"),
+                    alt.Tooltip("Count:Q", title="win_ratio")
+                ]
+            ).properties(
+                width=600,
+                height=400,
+                title="Ratio de victoire par pays"
+            ).configure_axis(
+                labelAngle=-45  # Rotation des labels pour une meilleure lisibilité
+            )
+
+            # Affichage dans Streamlit
+            st.altair_chart(chart, use_container_width=True)
+
+#### Requête pour la météo
+            # Exécution de la requête et création du DataFrame
+            result_meteo = db.execute_query(requete_meteo)
+            result_meteo_df = pd.DataFrame(result_meteo)
+            # st.dataframe(nation_meteo_df)
+            result_meteo_df = pd.merge(result_meteo_df, nation_meteo_df, on='Country')
+            # st.dataframe(result_meteo_df)
+            # Transformation des données pour Altair, en utilisant Distance
+            data_melted = result_meteo_df.melt(
+                id_vars=["Country"], 
+                value_vars=["Distance"],  # Utilisation de la variable 'Distance'
+                var_name="Metric", 
+                value_name="Count"
+            )
+
+            # Création du graphique Altair
+            chart = alt.Chart(data_melted).mark_bar().encode(
+                x=alt.X("Country:N", title="Pays"),  # Changé de 'year' à 'country'
+                y=alt.Y("Count:Q", title="Distance"),
+                color=alt.Color(
+                    "Metric:N",
+                    title="Métrique",
+                    scale=alt.Scale(
+                        domain=["Distance"],  # Remplace 'games_won' et 'games_played' par 'Distance'
+                        range=["#e74c3c"]  # Choix d'une couleur pour 'Distance' (par exemple, rouge)
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip("Country:N", title="Pays"),
+                    alt.Tooltip("Metric:N", title="Métrique"),
+                    alt.Tooltip("Count:Q", title="Distance")
+                ]
+            ).properties(
+                width=600,
+                height=400,
+                title="Distance par pays"
+            ).configure_axis(
+                labelAngle=-45  # Rotation des labels pour une meilleure lisibilité
+            )
+
+            # Affichage dans Streamlit
+            st.altair_chart(chart, use_container_width=True)
