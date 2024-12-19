@@ -593,18 +593,18 @@ def evolution_age():
                 result = db.execute_query(requete)
                 
                 players_df =pd.DataFrame(result)
-
-                players_df['year'] = players_df['year'].astype(int)
+                # st.dataframe(players_df)
+                players_df['age'] = players_df['age'].astype(int)
 
                 # Transformation des données pour Altair
-                data_melted = players_df.melt(id_vars=["year"], 
+                data_melted = players_df.melt(id_vars=["age"], 
                                             value_vars=["total_wins", "total_matches"], 
                                             var_name="Metric", 
                                             value_name="Count")
 
                 # Création du graphique Altair
                 chart = alt.Chart(data_melted).mark_bar().encode(
-                    x=alt.X("year:O", title="Year"),  # Axe X : les années
+                    x=alt.X("age:O", title="Age"),  # Axe X : les années
                     y=alt.Y("Count:Q", title="Count"),  # Axe Y : les valeurs (correctif ici)
                     color=alt.Color("Metric:N", title="Metric"),  # Couleurs pour différencier les métriques
                     xOffset=alt.XOffset("Metric:N", sort=["total_wins", "total_matches"])  # Décalage horizontal pour afficher côte à côte
