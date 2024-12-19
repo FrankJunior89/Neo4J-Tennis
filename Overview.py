@@ -110,7 +110,7 @@ elif option == "Classement des Coachs":
 elif option == "Profil Météo":
     # st.header("Profil Météo", divider=True)
     # Add relevant content for this section
-    profil_meteo()
+    #profil_meteo()
 
 # Men vs Women
 elif option == "Men vs Women":
