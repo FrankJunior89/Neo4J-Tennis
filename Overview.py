@@ -111,6 +111,7 @@ elif option == "Profil Météo":
     # st.header("Profil Météo", divider=True)
     # Add relevant content for this section
     #profil_meteo()
+    pass
 
 # Men vs Women
 elif option == "Men vs Women":
