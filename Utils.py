@@ -1241,7 +1241,7 @@ return distinct Country
 
     st.write("Cette requête en contient 2 puisqu'elle cherche à établir une corrélation entre le nombre de victoire de joueurs dont la nationnalité serait proche du pays dans lequel il joue selon certains indicateurs climatiques.")
 
-    country_option = st.selectbox("Choix du pays", nation_meteo_df['Country'])
+    country_option = st.selectbox("Choix du pays", nation_meteo_df['Country'],index=sorted(nation_meteo_df['Country']).index("USA"))
 
     if country_option:  # Vérifie qu'un pays a été sélectionné
         requete_game = f"""
